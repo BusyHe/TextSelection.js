@@ -1,0 +1,92 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>TextSelection Example</title>
+	<script language="javascript" type="text/javascript" src="TextSelection.js"></script>
+	<script language="javascript" type="text/javascript">
+    var ranges = []; // No ranges.
+
+    function showSelections() {
+        var selection = document.getElementById('selection');
+
+        selection.innerHTML = '';
+        for (var i = 0; i < ranges.length; ++i) {
+            var range = ranges[i];
+
+            var tangeHtml = '<li><code>{ startPosition: ' + range.startPosition + ', endPosition: ' + range.endPosition + ' }</code></li>';
+
+            selection.innerHTML = selection.innerHTML + tangeHtml;
+        }
+    }
+
+    function parseText(calculatorText) {
+        var result = '';
+
+        var elements = calculatorText.split('');
+        for (var i = 0; i < elements.length; ++i) {
+            var element = elements[i];
+
+            // Wrap numbers.
+            if (parseInt(element)) {
+                element = '<span style="color:green">' + element + '</span>';
+            }
+
+            // Wrap special elements.
+            if (['+', '-', '*', '/', '^', '(', ')'].indexOf(element) >= 0) {
+                element = '<span style="font-weight:bold;color:blue">' + element + '</span>';
+            }
+
+            result = result + element;
+        }
+
+        return result;
+    }
+
+    function saveRanges() {
+        var calculator = document.getElementById('calculator');
+        ranges = getNodeRanges(calculator);
+
+        showSelections();
+    }
+
+    function restoreRanges() {
+        var calculator = document.getElementById('calculator');
+        setNodeRanges(calculator, ranges);
+    }
+
+    function highlight() {
+        setTimeout(function() {
+            saveRanges();
+
+            var calculator = document.getElementById('calculator');
+            calculator.innerHTML = parseText(calculator.textContent);
+
+            restoreRanges();
+        }, 0);
+    }
+	</script>
+    <style type="text/css">
+    .input {
+        font-family:    "Montserrat", sans-serif;
+        border:         0.1em solid #ccc;
+        border-radius:  0.2em;
+        padding:        0.1em 0.6em;
+    }
+    </style>
+</head>
+<body onload="highlight()">
+
+<p>
+Editor:
+<code   id="calculator" class="input" spellcheck="false" contenteditable="true" 
+        onkeyup="saveRanges()" onkeypress="highlight()">1 + 2 * 3 / 4</code>
+</p>
+
+<p>
+Selection:
+<ul id="selection"></ul>
+</p>
+
+</body>
+</html>
